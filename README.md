@@ -1,4 +1,4 @@
-# FastEditDistanceBigDataPrefixTrees
+# FastEditDistanceUsingBigDataPrefixTrees
 Build prefix trees on a big-data platform using a lightening-fast method and use prefix trees to implement fast edit-distance algorithms.
 
 Read more at:
