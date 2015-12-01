@@ -1,7 +1,7 @@
 # Fast Edit Distance Using Big Data Prefix Trees
 Build prefix trees on a big-data platform using a lightning-fast method and use prefix trees to implement fast edit-distance algorithms.
 
-There are three forms of the code included
+There are three forms of the code included.
 
 The first form is self-contained and run on an HPCC Systems Thor using the in-line dataset in the example.  Use this one to understand what is going on with prefix trees and how to query them in Thor using an edit-distance algorithm.
 
