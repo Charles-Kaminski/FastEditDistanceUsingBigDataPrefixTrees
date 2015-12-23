@@ -307,7 +307,7 @@ STRING CalculateLevenshteinVector(STRING word, STRING node, STRING state) := BEG
 ENDC++;
  
 UNSIGNED1 GetMinDistance(STRING state) := BEGINC++
-  /// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
+	/// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
 	///  Get the Minimum Edit Distance
 	#option pure
 	#body		
@@ -316,7 +316,7 @@ UNSIGNED1 GetMinDistance(STRING state) := BEGINC++
 ENDC++;
 
 UNSIGNED1 GetFinalDistance(STRING state) := BEGINC++
-  /// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
+	/// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
 	///  Get the Final Edit Distance
 	#option pure
 	#body		
@@ -351,7 +351,6 @@ QueryPTLayout QueryPTTransform(QueryPTLayout L, PTLayout R) := TRANSFORM
 	SELF.is_word              := R.is_word; // If true, this is an end-cap word in the tree and has no children
 	SELF.cumulative_node_size := IF(R.is_word, LENGTH(R.node), LENGTH(R.node) + L.cumulative_node_size);
 	SELF.cumulative_nodes     := IF(R.is_word, R.node, L.cumulative_nodes + R.node);  // The node and it's parent values put together
-	// See blog post text above on minimum edit distance used to prune branches
 	SELF.current_distance     := IF(R.is_word, L.current_distance, GetMinDistance(SELF.state));
 	SELF.final_distance       := IF(R.is_word, GetFinalDistance(SELF.state), L.final_distance);	
 END;
