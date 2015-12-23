@@ -243,11 +243,10 @@ output(final_pt_ds, named('Final_PT'));
 //==================================================================================================
 
 STRING CalculateLevenshteinVector(STRING word, STRING node, STRING state) := BEGINC++
-	/// CFK 08/20/2015 charles.kaminski@lexisnexis.com		
+	/// CFK 08/20/2015 charles.kaminski@lexisnexis.com                 
 	/// This C++ returns the vector used to calculate
 	///  the Levenshtein distance in an interative process so that
-	///  an efficient prefix tree structure can be traversed when finding 
-	///  candidates
+	///  an efficient trie structure can be traversed when finding candidates
 	/// Node values can be passed in and the current state can be saved 
 	///   in the return vector so that other nodes can be further processed in series
 	/// We're using char arrays to keep the size down
@@ -257,12 +256,18 @@ STRING CalculateLevenshteinVector(STRING word, STRING node, STRING state) := BEG
 	///  intermediate values.
 	#option pure
 	#include <algorithm>
-	#body		
-	int v_size = lenWord + 1;
+	#body
+	//  The last element in the array will hold
+	//   the min value.  The min value will be used later.
+	int v_size = lenWord + 2;
+	
+	unsigned char min_value = 255;
+	unsigned char new_value = 0;
 	
 	// Since v0 is not returned, we should not use rtlMalloc
+	//unsigned char * v0 = (unsigned char*)rtlMalloc(v_size);	
 	unsigned char v0[v_size];
-	// Use rtlMalloc when a variable is returned a function
+	// We use rtlMalloc helper function when a variable is returned by the function
 	unsigned char * v1 = (unsigned char*)rtlMalloc(v_size);
 	
 	if (lenState < 1){
@@ -276,28 +281,47 @@ STRING CalculateLevenshteinVector(STRING word, STRING node, STRING state) := BEG
 	
 	int cost = 0;
 	int k = v0[0];
-			
+					
 	for (int i=k; i<k+lenNode; i++)
 	{
+		min_value = 255;
 		v1[0] = i + 1;
 		for (int j=0; j<lenWord; j++)
 		{
 			cost = (node[i-k] == word[j]) ? 0 : 1;
-			v1[j+1] = std::min(v1[j] + 1, std::min(v0[j+1] + 1, v0[j] + cost));
+			new_value = std::min(v1[j] + 1, std::min(v0[j+1] + 1, v0[j] + cost));
+			v1[j+1] = new_value;
+			if (new_value < min_value){
+			  min_value=new_value;
+      }
 		}
 		memcpy(&v0[0], &v1[0], lenState);
 	}
-
+	
+	// Store the min_value;
+	v1[v_size-1] = min_value;
+	
 	__lenResult = v_size;
-	__result    = (char *) v1;	
+  __result    = (char *) v1;
+                                                                
 ENDC++;
-
-UNSIGNED1 GetCurrentDistance(STRING state, UNSIGNED1 position) := BEGINC++
-    /// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
-	///  Gets a value out of a string and converts it to an UNSIGNED1
+ 
+UNSIGNED1 GetMinDistance(STRING state) := BEGINC++
+  /// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
+	///  Get the Minimum Edit Distance
 	#option pure
 	#body		
-	return (unsigned char) state[(unsigned int) position];
+	//return (unsigned char) state[(unsigned int) position];
+	return (unsigned char) state[lenState-1];
+ENDC++;
+
+UNSIGNED1 GetFinalDistance(STRING state) := BEGINC++
+  /// CFK 08/20/2015 charles.kaminski@lexisnexis.com	
+	///  Get the Final Edit Distance
+	#option pure
+	#body		
+	//return (unsigned char) state[(unsigned int) position];
+	return (unsigned char) state[lenState-2];
 ENDC++;
 
 QueryPTLayout := RECORD
@@ -328,9 +352,8 @@ QueryPTLayout QueryPTTransform(QueryPTLayout L, PTLayout R) := TRANSFORM
 	SELF.cumulative_node_size := IF(R.is_word, LENGTH(R.node), LENGTH(R.node) + L.cumulative_node_size);
 	SELF.cumulative_nodes     := IF(R.is_word, R.node, L.cumulative_nodes + R.node);  // The node and it's parent values put together
 	// See blog post text above on minimum edit distance used to prune branches
-	SELF.current_distance     := IF(R.is_word, L.current_distance,
-                                    GetCurrentDistance(SELF.state, MIN(SELF.cumulative_node_size, LENGTH(SELF.word))));
-	SELF.final_distance       := IF(R.is_word, GetCurrentDistance(SELF.state, LENGTH(SELF.word)), L.final_distance);
+	SELF.current_distance     := IF(R.is_word, L.current_distance, GetMinDistance(SELF.state));
+	SELF.final_distance       := IF(R.is_word, GetFinalDistance(SELF.state), L.final_distance);	
 END;
 
 MAX_DISTANCE := 2;
