@@ -1,0 +1,176 @@
+<!DOCTYPE html >
+
+<!-- http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html -->
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Collapsible Tree Example</title>
+
+    <style>
+
+ .node circle {
+   fill: #fff;
+   stroke: steelblue;
+   stroke-width: 2px;
+ }
+
+ .node text { font: 12px sans-serif; }
+
+ .link {
+   fill: none;
+   stroke: #ccc;
+   stroke-width: 2px;
+ }
+ 
+    </style>
+
+  </head>
+
+  <body>
+
+<!-- load the d3.js library --> 
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<div>
+<table border="0" style="width:100%">
+<tr>
+<td>
+<span align="left" STYLE="font-family: sans-serif; 
+font-size: 14px; color: black">
+Prefix Tree
+<span>
+<span align="left" STYLE="font-family: sans-serif; 
+font-size: 12px; color: black">
+
+
+<br>
+<br><u>Words</u>
+<br>cant
+<br>cat
+<br>categories
+<br>category
+<br>cave
+<br>caved
+<br>cent
+<br>cept
+<br>corded
+<br>dog
+<br>drop
+<br>dropping
+</span>
+</td>
+<td>
+<span align="right">
+<script>
+
+var treeData = [
+  { "name": "",
+    "children": [
+      {"name":"c", 
+	   "children": [
+          {"name":"a", 
+		   "children": [
+			  
+			  {"name":"nt", "fill":"steelblue"},
+			  {"name":"t", "fill":"steelblue",
+			   "children": [
+				  {"name":"egor", 
+				   "children":[
+				       {"name":"ies", "fill":"steelblue"},
+				       {"name":"y", "fill":"steelblue"},
+					   
+				    ]}
+			    ]},
+			  {"name":"ve", "fill":"steelblue", "children":[{"name":"d", "fill":"steelblue"}]},
+			]},
+			          {"name":"e",
+		   "children":[
+		       {"name":"nt", "fill":"steelblue"},
+			   {"name":"pt", "fill":"steelblue"}
+		    ]},
+		  {"name":"orded", "fill":"steelblue"}
+        ]},
+      {"name":"d", 
+	   "children":[
+	      {"name":"og", "fill":"steelblue"},
+		  {"name":"rop", "fill":"steelblue", 
+		   "children":[{"name":"ping", "fill":"steelblue"}]}
+	   ]}
+    ]
+  }
+];
+
+// ************** Generate the tree diagram  *****************
+var margin = {top: 30, right: 120, bottom: 20, left: 120},
+ width = 500 - margin.right - margin.left,
+ height = 430 - margin.top - margin.bottom;
+ 
+var i = 0;
+
+var tree = d3.layout.tree()
+ .size([height, width]);
+
+var diagonal = d3.svg.diagonal()
+ .projection(function(d) { return [d.x, d.y]; });
+
+var svg = d3.select("body").append("svg")
+ .attr("width", width + margin.right + margin.left)
+ .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+ .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+root = treeData[0];
+  
+update(root);
+
+function update(source) {
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+   links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * 60; });
+
+  // Declare the nodesâ€¦
+  var node = svg.selectAll("g.node")
+   .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter the nodes.
+  var nodeEnter = node.enter().append("g")
+   .attr("class", "node")
+   .attr("transform", function(d) { 
+    return "translate(" + d.x + "," + d.y + ")"; });
+
+  nodeEnter.append("circle")
+   .attr("r", 10)
+   .style("fill", function(d) { return d.fill; });
+
+nodeEnter.append("text")
+   .attr("y", function(d) { 
+    return d.children || d._children ? -18 : 18; })
+   .attr("dy", ".35em")
+   .attr("text-anchor", "middle")
+   .text(function(d) { return d.name; })
+   .style("fill-opacity", 1);
+
+  // Declare the linksâ€¦
+  var link = svg.selectAll("path.link")
+   .data(links, function(d) { return d.target.id; });
+
+  // Enter the links.
+  link.enter().insert("path", "g")
+   .attr("class", "link")
+   .attr("d", diagonal);
+
+}
+
+</script>
+</span>
+</td>
+</tr>
+
+</table>
+</div></body>
+</html>
