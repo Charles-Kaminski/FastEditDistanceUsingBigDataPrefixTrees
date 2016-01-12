@@ -1,11 +1,8 @@
-// CFK 08/18/2015 charles.kaminski@lexisnexis.com
-// This code shows how to use a prefix tree to 
-//   significantly improve the performance of an 
-//   edit distance algorythm.
-// This code is self contained and uses in-line datasets
-// The code is designed to run  on the Thor.
-// Read the code walk-through on the HPCC Systems blog
-// https://hpccsystems.com/resources/blog?uid=225 
+// CFK 01/09/2016 charles.kaminski@lexisnexis.com
+// This code builds on previous work to add a new concept
+//  Use a max and min length to inexpensively prune your
+//  prefix tree.
+//  Check out "// <***>" to see where edits were made
 
 //==================================================================================================
 //=============================== Build Prefix Tree ================================================
@@ -167,8 +164,10 @@ PTLayout := RECORD
 	UNSIGNED  id;       // Primary Key
 	UNSIGNED  parent_id;// The parent for this node.  Zero is a root node
 	STRING    node;     // Contains the payload for this node
+	// <***>
 	UNSIGNED1 _max;     // The max length of any child word for this node
 	UNSIGNED1 _min;     // The min length of any child word for this node	
+	// <***>
 	BOOLEAN   is_word;  // Indicates if this node is a word (an end-cap with no children)
 	UNSIGNED4 machine;  // The Thor machine this prefix tree node is on
 END;
@@ -227,8 +226,10 @@ PTLayout NormalizePTTransform(NodesLayout L, UNSIGNED4 C):= TRANSFORM
 	SELF.id        := GetID((STRING)L.node_ids, C);
 	SELF.parent_id := GetID((STRING)L.node_ids, C-1);
 	SELF.node      := IF(C=L.node_cnt, L.word, GetNode(L.word, L.nodes, C));
+	// <***>
 	SELF._max      := LENGTH(L.word);
 	SELF._min      := LENGTH(L.word);
+	// <***>
 	SELF.is_word   := IF(C=L.node_cnt, True, False);
 	SELF.machine   := Thorlib.Node();
 END; 
@@ -246,9 +247,10 @@ END;
 
 sorted_normalized_pt_ds := SORT(normalized_pt_ds, id, LOCAL);
 
+// <***>
 final_pt_ds := Rollup(sorted_normalized_pt_ds, LEFT.id = RIGHT.id, RollupPTTransform(LEFT, RIGHT), LOCAL);
-
 //final_pt_ds := DEDUP(SORT(normalized_pt_ds, id, LOCAL),machine, id, KEEP 1, LEFT, LOCAL);
+// <***>
 
 output(final_pt_ds, named('Final_PT'));
 
@@ -360,12 +362,14 @@ output(query_ds, named('Query_DS'));
 QueryPTLayout QueryPTTransform(QueryPTLayout L, PTLayout R) := TRANSFORM
 	SELF.word                 := L.word;    // The query word
 	SELF.state                := IF(R.is_word, L.state, CalculateLevenshteinVector(L.word, R.node, L.state));
-	SELF.state_data			  := (DATA)SELF.state; // The state data reformatted for easier debugging
+	SELF.state_data			      := (DATA)SELF.state; // The state data reformatted for easier debugging
 	SELF.node_id              := R.id;      // The current node ID of the prefix tree.  
 	                                        // This will be joined against parent id to find the next node
 	SELF.node                 := R.node;    // The text of the node
+	// <***>
 	SELF._max                 := R._max;    // The minimum word size for all the children of this node
 	SELF._min                 := R._min;    // The maximum word size for all the children of this node
+	// <***>
 	SELF.is_word              := R.is_word; // If true, this is an end-cap word in the tree and has no children
 	SELF.cumulative_node_size := IF(R.is_word, LENGTH(R.node), LENGTH(R.node) + L.cumulative_node_size);
 	SELF.cumulative_nodes     := IF(R.is_word, R.node, L.cumulative_nodes + R.node);  // The node and it's parent values put together
@@ -380,12 +384,14 @@ looped_ds := LOOP(query_ds,
 					EXISTS(ROWS(LEFT)) = True,
 					JOIN(ROWS(LEFT), final_pt_ds, LEFT.node_id = RIGHT.parent_id AND 
 					                              LEFT.current_distance <= MAX_DISTANCE AND
+																				// <***>
 																				// Current_distance cannot be incorporated into the next two expressions
 																				// To do so would "double count" certain edit-distance situations;
 																				// such as comparing "dog" and "drop" (see testing joins below).
 																				// Don't do this -> (LENGTH(LEFT.word)) <= (RIGHT._min - (MAX_DISTANCE - LEFT.current_distance))
 																				(LENGTH(LEFT.word)) <= (RIGHT._max + MAX_DISTANCE) AND
 																				(LENGTH(LEFT.word)) >= (RIGHT._min - MAX_DISTANCE) ,
+																				// <***>
 							 QueryPTTransform(LEFT,RIGHT), INNER)); 														 
 
 OUTPUT(looped_ds(looped_ds.final_distance <= MAX_DISTANCE), NAMED('Final'));
