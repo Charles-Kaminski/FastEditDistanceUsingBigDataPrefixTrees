@@ -239,15 +239,15 @@ normalized_pt_ds := NORMALIZE(node_ids_ds, LEFT.node_cnt, NormalizePTTransform(L
 
 output(normalized_pt_ds, named('Normalized_PT'));
 
+// <***>
+sorted_normalized_pt_ds := SORT(normalized_pt_ds, id, LOCAL);
+
 PTLayout RollupPTTransform(PTLayout L, PTLayout R):=TRANSFORM
   SELF._max := MAX(L._max, R._max);
 	SELF._min := MIN(L._min, R._min);
   SELF := R;
 END;
 
-sorted_normalized_pt_ds := SORT(normalized_pt_ds, id, LOCAL);
-
-// <***>
 final_pt_ds := Rollup(sorted_normalized_pt_ds, LEFT.id = RIGHT.id, RollupPTTransform(LEFT, RIGHT), LOCAL);
 //final_pt_ds := DEDUP(SORT(normalized_pt_ds, id, LOCAL),machine, id, KEEP 1, LEFT, LOCAL);
 // <***>
