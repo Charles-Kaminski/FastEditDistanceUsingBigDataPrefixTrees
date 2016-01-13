@@ -384,14 +384,14 @@ looped_ds := LOOP(query_ds,
 					EXISTS(ROWS(LEFT)) = True,
 					JOIN(ROWS(LEFT), final_pt_ds, LEFT.node_id = RIGHT.parent_id AND 
 					                              LEFT.current_distance <= MAX_DISTANCE AND
-																				// <***>
-																				// Current_distance cannot be incorporated into the next two expressions
-																				// To do so would "double count" certain edit-distance situations;
-																				// such as comparing "dog" and "drop" (see testing joins below).
-																				// Don't do this -> (LENGTH(LEFT.word)) <= (RIGHT._min - (MAX_DISTANCE - LEFT.current_distance))
-																				(LENGTH(LEFT.word)) <= (RIGHT._max + MAX_DISTANCE) AND
-																				(LENGTH(LEFT.word)) >= (RIGHT._min - MAX_DISTANCE) ,
-																				// <***>
+								      // <***>
+								      // Current_distance cannot be incorporated into the next two expressions
+								      // To do so would "double count" certain edit-distance situations;
+								      // such as comparing "dog" and "drop" (see testing joins below).
+								      // Don't do this -> (LENGTH(LEFT.word)) <= (RIGHT._min - (MAX_DISTANCE - LEFT.current_distance))
+								      (LENGTH(LEFT.word)) <= (RIGHT._max + MAX_DISTANCE) AND
+								      (LENGTH(LEFT.word)) >= (RIGHT._min - MAX_DISTANCE) ,
+								      // <***>
 							 QueryPTTransform(LEFT,RIGHT), INNER)); 														 
 
 OUTPUT(looped_ds(looped_ds.final_distance <= MAX_DISTANCE), NAMED('Final'));
