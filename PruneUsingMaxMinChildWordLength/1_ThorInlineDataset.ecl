@@ -346,8 +346,10 @@ QueryPTLayout := RECORD
 	DATA      state_data           := (DATA)'ab';
 	UNSIGNED  node_id              := 0;
 	STRING    node                 := '';
+	// <***>
 	UNSIGNED1 _max                 := 255;
 	UNSIGNED1 _min                 := 0;
+	// <***>
 	BOOLEAN   is_word              := False;
 	STRING    cumulative_nodes     := '';
 	UNSIGNED1 cumulative_node_size := 0;
