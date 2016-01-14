@@ -427,7 +427,7 @@ looped_ds := LOOP(query_ds,
 								                     // Current_distance cannot be incorporated into the next two expressions
 								                     // To do so would "double count" certain edit-distance situations;
 								                     // such as comparing "dog" and "drop" (See 1_ThorInlineDataset.ecl in the same directory).
-								                     // Don't do this -> (LENGTH(LEFT.word)) <= (RIGHT._min - (MAX_DISTANCE - LEFT.current_distance))
+								                     // Don't do this -> (LENGTH(LEFT.word)) >= (RIGHT._min - (MAX_DISTANCE - LEFT.current_distance))
 								                     LENGTH(LEFT.word) <= (RIGHT._max + MAX_DISTANCE) AND
 								                     LENGTH(LEFT.word) >= (RIGHT._min - MAX_DISTANCE),
 								                     // <***>
