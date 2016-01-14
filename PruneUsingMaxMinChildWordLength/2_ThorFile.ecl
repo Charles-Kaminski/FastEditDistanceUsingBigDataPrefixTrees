@@ -1,15 +1,8 @@
-// CFK 08/18/2015 charles.kaminski@lexisnexis.com
-// This code shows how to use a prefix tree to 
-//   significantly improve the performance of an 
-//   edit distance algorythm.
-// This code builds a prefix tree from a Thor file
-// It then uses that Thor file to query the prefix tree
-// In effect it finds edit-distance candidates for every
-//   combination of word pairs in the file, only much faster
-//   than the naive approach.
-// The code is designed to run on the Thor.
-// Read the code walk-through on the HPCC Systems blog
-// https://hpccsystems.com/resources/blog?uid=225 
+// CFK 01/09/2016 charles.kaminski@lexisnexis.com
+// This code builds on previous work to add a new concept
+//  Use a max and min length to inexpensively prune your
+//  prefix tree.
+//  Check out "// <***>" to see where edits were made
 
 //==================================================================================================
 //=============================== Build Prefix Tree ================================================
