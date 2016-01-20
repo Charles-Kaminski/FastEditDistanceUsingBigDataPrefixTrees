@@ -244,7 +244,7 @@ sorted_normalized_pt_ds := SORT(normalized_pt_ds, id, LOCAL);
 
 PTLayout RollupPTTransform(PTLayout L, PTLayout R):=TRANSFORM
   SELF._max := MAX(L._max, R._max);
-	SELF._min := MIN(L._min, R._min);
+  SELF._min := MIN(L._min, R._min);
   SELF := R;
 END;
 
