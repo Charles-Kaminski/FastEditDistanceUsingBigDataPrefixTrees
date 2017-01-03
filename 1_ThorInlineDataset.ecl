@@ -282,11 +282,11 @@ STRING CalculateLevenshteinVector(STRING word, STRING node, STRING state) := BEG
 	int cost = 0;
 	int k = v0[0];
 					
-	for (int i=k; i<k+lenNode; i++)
+	for (unsigned int i=k; i<k+lenNode; i++)
 	{
 		min_value = 255;
 		v1[0] = i + 1;
-		for (int j=0; j<lenWord; j++)
+		for (unsigned int j=0; j<lenWord; j++)
 		{
 			cost = (node[i-k] == word[j]) ? 0 : 1;
 			new_value = std::min(v1[j] + 1, std::min(v0[j+1] + 1, v0[j] + cost));
