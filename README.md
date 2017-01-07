@@ -1,4 +1,5 @@
 # Fast Edit Distance Using Big Data Prefix Trees
+
 Build prefix trees on a big-data platform using a lightning-fast method and use prefix trees to implement fast edit-distance algorithms.
 
 There are three forms of the code included.
@@ -18,3 +19,5 @@ https://hpccsystems.com/resources/blog/ckaminski/edit-distances-and-optimized-pr
 https://hpccsystems.com/resources/blog/ckaminski/fast-edit-distance-queries-big-data-using-prefix-trees
 
 https://hpccsystems.com/resources/blog/ckaminski/accelerating-prefix-trees
+
+UPDATED - I've create a set of function macros in a code bundle that will do the heavy lifting for you.  Check it out at https://github.com/Charles-Kaminski/PrefixTree
